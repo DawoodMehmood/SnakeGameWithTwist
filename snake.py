@@ -171,3 +171,56 @@ def score(data):
     score = small_font.render("Score: "+str(data), True, WHITE)
     screen.blit(score, [270, 0])
 
+
+
+def dis_screen():
+    """Function to display menu at start-up and initializes"""
+
+    pygame.mixer.Sound.play(menu)     # Playing the music for menu
+    show_the_welcome_screen = True
+    while show_the_welcome_screen:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_e:
+                    pygame.mixer.Sound.stop(menu)     # Stop playing the music for the new event
+                    # Declaring credentials as per level selection
+                    boundary = False
+                    obstacle = False
+                    colour = SKIN1
+                    return boundary, obstacle, colour
+                if event.key == pygame.K_m:
+                    pygame.mixer.Sound.stop(menu)     # Stop playing the music for the new event
+                    # Declaring credentials as per level selection
+                    boundary = True
+                    obstacle = False
+                    colour = SKIN2
+                    return boundary, obstacle, colour
+                if event.key == pygame.K_h:
+                    pygame.mixer.Sound.stop(menu)     # Stop playing the music for the new event
+                    # Declaring credentials as per level selection
+                    boundary = True
+                    obstacle = True
+                    colour = SKIN3
+                    return boundary, obstacle, colour
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    quit()
+
+        screen.fill(WHITE)
+        screen.blit(background, (0, 0))
+        # All the text to display on the screen
+        message_to_display("Snake Frenzy", RED, -120, "medium")
+        message_to_display("The objective of this game is to eat fruits", BLUE, -60)
+        message_to_display("The more fruit you eat, the longer you get", BLUE, -30)
+        message_to_display("If you run into yourself you die!", BLUE, 0)
+        message_to_display("Press [E] for Easy Level", BLACK, 120)
+        message_to_display("Press [M] for Medium Level", BLACK, 150)
+        message_to_display("Press [H] for Hard Level", BLACK, 180)
+        message_to_display("Press [Q] to Quit", BLACK, 210)
+
+        pygame.display.update()
+        clock.tick(15)
+
