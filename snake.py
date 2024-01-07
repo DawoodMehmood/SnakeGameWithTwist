@@ -286,3 +286,183 @@ def gameover():
         pygame.display.update()
         clock.tick(15)
 
+
+def game(snake, head, boundary, obstacle, colour):
+    """This function can be considered as the core function of the game like main loop.
+     It control all the contents for different levels from appearance to execution.It takes in
+      the snake,head,boundary,obstacle and color for the snakes of different levels"""
+    # Initialising the snake
+    head = [x_coordinate, y_coordinate]  # Placing the head
+    # Placing the rest of the snake
+    snake = [[head[0] - box, head[1]], [head[0] - box * 2, head[1]], [head[0] - box * 3, head[1]]]
+
+    # checking the level selection by the user and loading relevant image
+    if not boundary and not obstacle:       # Easy level
+        bgimg = pygame.image.load('pictures/bck1.png')   # Background image for easy level
+        bgimg = pygame.transform.scale(bgimg, (x_length, y_length)).convert_alpha()
+
+    if boundary and not obstacle:       # Medium level
+        bgimg = pygame.image.load('pictures/bck2.png')   # background image for medium level
+        bgimg = pygame.transform.scale(bgimg, (x_length, y_length)).convert_alpha()
+
+    if boundary and obstacle:       # Hard level
+        bgimg = pygame.image.load('pictures/bck3.png')       # Background image for hard level
+        bgimg = pygame.transform.scale(bgimg, (x_length, y_length)).convert_alpha()
+
+    global total_points
+    total_points = 0      # Initializing the score to Zero
+    normal_points = 0      # Initializing secondary score(count of normal fruit eaten) to Zero
+    pygame.mixer.music.load('sounds/main_game.wav') # playing sound for gameplay
+    pygame.mixer.music.play(-1)
+    normal_fruit_x, normal_fruit_y = fruit(snake, grid, boundary, obstacle)      # For normal fruit
+    bonus_fruit_x, bonus_fruit_y = fruit(snake, grid, boundary, obstacle)  # For bonus score fruit
+    bad_fruit_x, bad_fruit_y = fruit(snake, grid, boundary, obstacle)  # For fruit that increase length
+    good_fruit_x, good_fruit_y = fruit(snake, grid, boundary, obstacle)  # For fruit that decrease length
+
+    # To make sure fruits don't appear on each other
+    while bonus_fruit_x == normal_fruit_x and bonus_fruit_y == normal_fruit_y:
+        bonus_fruit_x, bonus_fruit_y = fruit(snake, grid, boundary, obstacle)
+
+    while (bad_fruit_x == normal_fruit_x and bad_fruit_y == normal_fruit_y) or (bad_fruit_x == good_fruit_x and bad_fruit_y == good_fruit_y):
+        bad_fruit_x, bad_fruit_y = fruit(snake, grid, boundary, obstacle)
+
+    while (good_fruit_x == normal_fruit_x and good_fruit_y == normal_fruit_y) or (good_fruit_x == bad_fruit_x and good_fruit_y == bad_fruit_y):
+        good_fruit_x, good_fruit_y = fruit(snake, grid, boundary, obstacle)
+
+    direct = "RIGHT"     # Declaring the initial direction of snake
+    speed = 30      # The spaces(30) snake travels in a single loop-as per dimensions of box of grid
+    quit_game = False       # When quit_game is True, main loop breaks and game ends
+    time_delay = 0.12   # Sets time after which screen updates - currently set to 120 ms - used for controlling speed
+    current_time = 0        # Initializing the time for taking difference for timer
+    bonus_fruit_time = 0        # Initializing the time for taking difference for timer
+    good_bad_fruit_time = 0        # Initializing the time for taking difference for timer
+    while quit_game == False:
+        for event in pygame.event.get():        # Condition to quit game if window is closed
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+            if event.type == pygame.KEYDOWN:    # Conditions to move snake according to user input
+                # Following are method to deal with input of user
+                # If user presses arrow keys, change direction
+                # 180 degree change of snake prohibited by checking initial direction
+                # break is used so that only one change of direction command is executed in one iteration
+                if event.key == pygame.K_DOWN:
+                    if direct == "UP":
+                        continue
+                    direct = "DOWN"
+                    break
+                if event.key == pygame.K_UP:
+                    if direct == "DOWN":
+                        continue
+                    direct = "UP"
+                    break
+                if event.key == pygame.K_RIGHT:
+                    if direct == "LEFT":
+                        continue
+                    direct = "RIGHT"
+                    break
+                if event.key == pygame.K_LEFT:
+                    if direct == "RIGHT":
+                        continue
+                    direct = "LEFT"
+                    break
+
+        for body in range(len(snake) - 1, 0, -1):
+            snake[body] = snake[body-1]
+        snake[0] = head
+        head = direction(direct, head[0], head[1], speed)  # Checking the direction in result of an event
+
+        if not boundary and not obstacle:
+            head = leaves_screen(head[0], head[1])  # Checking leaving of screen by snake for easy level
+        if boundary:        # Checking collision with boundary by snake for medium level
+            if head[0] < 30 or head[0] > 569 or head[1] < 30 or head[1] > 569:
+                quit_game = True
+            if obstacle:        # Checking collision with obstacle by snake for hard level
+                if (209 < head[0] < 390) and (269 < head[1] < 330):
+                    quit_game = True
+
+        if head == (normal_fruit_x, normal_fruit_y):      # Checking collision with fruit for another to appear
+            normal_fruit_x, normal_fruit_y = fruit(snake, grid, boundary, obstacle)
+            snake.append([])        # Increment in snake's length += 1
+            pygame.mixer.Sound.play(fruit_sound)
+            total_points += 1            # Increment in score
+            normal_points += 1
+            if time_delay > 0.05:        # Controls the speed of the game
+                time_delay -= 0.003
+            # Checking if score is multiple of 5 for special fruit appearance
+            if normal_points % 5 == 0 and normal_points != 0:
+                if normal_points % 10 == 0:      # Checking if score is multiple of 10 for special fruit appearance
+                    good_bad_fruit_time = pygame.time.get_ticks()
+                    bad_fruit_x, bad_fruit_y = fruit(snake, grid, boundary, obstacle)
+                    good_fruit_x, good_fruit_y = fruit(snake, grid, boundary, obstacle)
+                else:
+                    bonus_fruit_time = pygame.time.get_ticks()
+                    bonus_fruit_x, bonus_fruit_y = fruit(snake, grid, boundary, obstacle)
+
+        # Checking if score is multiple of 5 for special fruit appearance
+        if normal_points % 5 == 0 and normal_points != 0:
+            if normal_points % 10 == 0:      # Checking if score is multiple of 10 for special fruit appearance
+                # display image for special fruits after eating 10 ordinary fruits
+                screen.blit(fruimg3, (good_fruit_x, good_fruit_y, box, box))
+                screen.blit(fruimg4, (bad_fruit_x, bad_fruit_y, box, box))
+                if head[0] == good_fruit_x and head[1] == good_fruit_y:    # Checking collision with fruit
+                    good_fruit_x, good_fruit_y = fruit(snake, grid, boundary, obstacle)
+                    pygame.mixer.Sound.play(fruit_sound) # play sound when snake eats fruit
+                    del snake[-5:-1]   # Remove 4 blocks from snake list
+                    normal_points = 0         # Returning normal fruit count to initial state
+                elif head[0] == bad_fruit_x and head[1] == bad_fruit_y:     # Checking collision with fruit
+                    bad_fruit_x, bad_fruit_y = fruit(snake, grid, boundary, obstacle)
+                    pygame.mixer.Sound.play(fruit_sound) # play sound when snake eats fruit
+                    snake.extend([[], [], [], []])  # Adding 4 blocks to snake list
+                    normal_points = 0         # Returning normal fruit count to initial state
+                if current_time - good_bad_fruit_time > 3000:  # Fruit appears for 3 seconds
+                    good_fruit_x, good_fruit_y = -30, -30
+                    bad_fruit_x, bad_fruit_y = -30, -30
+            else:
+                screen.blit(fruimg2, (bonus_fruit_x, bonus_fruit_y)) # display image for special fruit after eating 5 ordinary fruits
+                if head[0] == bonus_fruit_x and head[1] == bonus_fruit_y:
+                    bonus_fruit_x, bonus_fruit_y = fruit(snake, grid, boundary, obstacle)
+                    pygame.mixer.Sound.play(fruit_sound) # play sound when snake eats fruit
+                    total_points += 3     # Increment 3 in score
+                if current_time - bonus_fruit_time > 3000:  # Fruit appears for 3 second
+                    bonus_fruit_x, bonus_fruit_y = -30, -30
+
+        # Used to check collision of snake's head with its body
+        if head in snake:
+            quit_game = True
+            
+        # LOOP USED TO PRINT every part of snake on screen
+        count = 0
+        for body in snake:
+            if len(body) == 0:
+                continue
+            # If count == 0, the first part head is printed and a different colour is used for it
+            if count == 0:
+                pygame.draw.rect(screen, BLACK, [body[0], body[1], box, box])
+                count += 1
+                continue
+            pygame.draw.rect(screen, colour, [body[0], body[1], box, box])
+            count += 1
+
+        pygame.display.flip()  # UPDATE SCREEN
+        clock.tick(60)  # Set fps to 60
+
+        # PRINTING ON SCREEN
+        screen.fill(WHITE)  # Clear screen so new images can be shown
+        screen.blit(bgimg, (0, 0)) # displaying background image
+
+        # Fruit appears at random position(width and length = 30)
+        
+        screen.blit(fruimg, (normal_fruit_x, normal_fruit_y, box, box)) # displaying ordinary fruits
+        score(total_points)       # Calling the function to show score on screen
+        current_time = pygame.time.get_ticks()
+        time.sleep(time_delay)  # Used to manage delay between successive iterations
+        # time_delay decreases everytime fruit is eaten so the loop runs more often and snake is faster
+
+
+# To start until user press Q to exit or click cross on window.
+boundary, obstacle, colour = dis_screen()
+game(snake, head, boundary, obstacle, colour)
+gameover()
+
+
