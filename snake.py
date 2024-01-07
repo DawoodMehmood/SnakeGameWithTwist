@@ -224,3 +224,65 @@ def dis_screen():
         pygame.display.update()
         clock.tick(15)
 
+
+def gameover():
+    """Function for the displaying of menu when game gets over by a condition in main loop.
+    It also calls the respective levels if player wants to play more"""
+    pygame.mixer.music.stop()     # Stop playing the sound of menu
+    pygame.mixer.Sound.play(gameovr)      # Playing the music for gameover
+    show_the_welcome_screen = True      # Showing the welcome screen
+
+    while show_the_welcome_screen:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+    
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_e:
+                    pygame.mixer.Sound.stop(gameovr)     # Stop playing the music for the new event
+                    game(snake, head, boundary=False, obstacle=False, colour=SKIN1)
+                    pygame.mixer.music.stop()  # Stop playing the sound of menu
+                    pygame.mixer.Sound.play(gameovr)  # Playing the music for gameover
+                    pygame.mixer.music.stop()
+                if event.key == pygame.K_m:
+                    pygame.mixer.Sound.stop(gameovr)     # Stop playing the sound of gameover
+                    game(snake, head, boundary=True, obstacle=False, colour=SKIN2)
+                    pygame.mixer.music.stop()  # Stop playing the sound of menu
+                    pygame.mixer.Sound.play(gameovr)  # Playing the music for gameover
+
+                if event.key == pygame.K_h:
+                    pygame.mixer.Sound.stop(gameovr)     # Stop playing the sound of gameover
+                    game(snake, head, boundary=True, obstacle=True, colour=SKIN3)
+                    pygame.mixer.music.stop()  # Stop playing the sound of menu
+                    pygame.mixer.Sound.play(gameovr)  # Playing the music for gameover
+          
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    quit()
+
+        screen.fill(WHITE)
+        screen.blit(background, (0, 0))
+        # All the text to display on the screen
+        message_to_display("Game Over!!!", RED, -90, "medium")
+        message_to_display(f"Score: {total_points}", BLUE, 0)
+        message_to_display("Press [E] for Easy Level", BLACK, 120)
+        message_to_display("Press [M] for Medium Level", BLACK, 150)
+        message_to_display("Press [H] for Hard Level", BLACK, 180)
+        message_to_display("Press [Q] to Quit", BLACK, 210)
+        # File handling for storing and display of highscore by comparing with the points scored
+        # If the file to store highscore does not exist, it is created with highscore 0
+        if not isfile("Highscore.txt"):
+            with open("Highscore.txt", 'w') as file:
+                file.write("0")
+        with open("Highscore.txt") as file:
+            data = file.read()
+        if eval(data) < total_points:
+            file = open("Highscore.txt", "w")
+            file.write(str(total_points))
+            file.close()
+        else:
+            message_to_display(f"High Score: {data}", BLUE, 30)
+        pygame.display.update()
+        clock.tick(15)
+
