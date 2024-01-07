@@ -93,6 +93,8 @@ obstacle_coordinates = list(set(obstacle_coordinates))
 for i in obstacle_coordinates:
     grid.remove(i)      # Removing obstacle(coordinates) from grid so fruit should not appear on obstacle
 
+
+def message_to_display(msg, color, y_displace=0, size="small"):
     """Function to print message on game display and takes the text,color and position along y-axis as arguments"""
     def text_object(msg, color, size):
         """Function deals with the formatting of the text to be written,takes in the text and color as arguments"""
@@ -109,4 +111,3 @@ for i in obstacle_coordinates:
     textSurf, textRect = text_object(msg, color, size)
     textRect.center = (x_length/2), (y_length/2) + y_displace
     screen.blit(textSurf, textRect)
-
