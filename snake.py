@@ -166,3 +166,8 @@ def leaves_screen(x_coordinate, y_coordinate):
         x_coordinate = 0
     return x_coordinate, y_coordinate
 
+def score(data):
+    """Function to count score of the user and displaying on screen"""
+    score = small_font.render("Score: "+str(data), True, WHITE)
+    screen.blit(score, [270, 0])
+
