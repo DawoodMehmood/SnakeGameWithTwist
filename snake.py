@@ -135,3 +135,16 @@ def fruit(snake_list, obstacle_free_list, boundary=True, obstacle=True):
         fruit_x, fruit_y = fruit_check()
     return fruit_x, fruit_y
 
+def direction(direct, x_coordinate, y_coordinate,  distance=30):       # Distance =width(or length)of box of grid-30
+    """Function to enable automatic movement of snake,variable 'direct' is used to store which direction
+     the snake moves in automatically,parameter distance refers to the distance snake travels in one iteration
+     and returns the coordinates of snake('x' and 'y' coordinate) as a result of an event"""
+    if direct == "UP":
+        y_coordinate -= distance
+    if direct == "DOWN":
+        y_coordinate += distance
+    if direct == "RIGHT":
+        x_coordinate += distance
+    if direct == "LEFT":
+        x_coordinate -= distance
+    return x_coordinate, y_coordinate 
