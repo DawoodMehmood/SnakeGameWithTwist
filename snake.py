@@ -148,3 +148,21 @@ def direction(direct, x_coordinate, y_coordinate,  distance=30):       # Distanc
     if direct == "LEFT":
         x_coordinate -= distance
     return x_coordinate, y_coordinate 
+
+
+
+def leaves_screen(x_coordinate, y_coordinate):
+    """Function to deal with snake if it leaves screen,if its coordinates are beyond the grid, it is sent
+     at opposite side of where it left.Like if it left screen at RIGHT MOST (599, 0) it is sent to LEFT MOST (0,0).
+     It returns new coordinates of snake('x' and 'y' coordinate)"""
+
+    if y_coordinate >= y_length - 1:
+        y_coordinate = 0
+    elif y_coordinate <= -1:
+        y_coordinate = y_length - box
+    if x_coordinate <= -1:
+        x_coordinate = x_length - box
+    elif x_coordinate >= x_length - 1:
+        x_coordinate = 0
+    return x_coordinate, y_coordinate
+
