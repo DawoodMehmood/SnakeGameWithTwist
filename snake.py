@@ -111,3 +111,27 @@ def message_to_display(msg, color, y_displace=0, size="small"):
     textSurf, textRect = text_object(msg, color, size)
     textRect.center = (x_length/2), (y_length/2) + y_displace
     screen.blit(textSurf, textRect)
+
+
+
+def fruit(snake_list, obstacle_free_list, boundary=True, obstacle=True):
+    """Function deals with the placement of the fruit on the screen"""
+    # Total width -30 to keep the complete fruit within the screen:(30 is width and length of fruit)
+    def fruit_check():
+        """Generates 'x' and 'y' coordinates of fruit for 3 situations(levels)"""
+        if boundary and not obstacle:  # Fruit cannot appear on boundary
+            fruit_x = random.randrange(box, x_length - box, 30)
+            fruit_y = random.randrange(box, y_length - box, 30)
+        if not boundary and not obstacle:  # Fruit can appear anywhere
+            fruit_x = random.randrange(0, x_length - box, 30)
+            fruit_y = random.randrange(0, y_length - box, 30)
+        if boundary and obstacle:  # Fruit can not appear on boundary and obstacle
+            # Coordinates for fruit selected from an obstacle free list
+            fruit_x, fruit_y = random.choice(obstacle_free_list)
+        return fruit_x, fruit_y
+    fruit_x, fruit_y = fruit_check()
+    # fruit coordinates are generated until they are not equal to snake coordinates
+    while (fruit_x, fruit_y) in snake_list:
+        fruit_x, fruit_y = fruit_check()
+    return fruit_x, fruit_y
+
